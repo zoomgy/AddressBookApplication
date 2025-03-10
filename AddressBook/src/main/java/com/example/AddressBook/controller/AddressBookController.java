@@ -17,20 +17,16 @@ public class AddressBookController {
     @Autowired
     private AddressBookService service;
 
-    // Create a new address entry
     @PostMapping("/add")
     public ResponseEntity<AddressBookModel> addAddress(@RequestBody AddressBookDTO dto) {
-        AddressBookModel savedAddress = service.saveAddress(dto);
-        return ResponseEntity.ok(savedAddress);
+        return ResponseEntity.ok(service.saveAddress(dto));
     }
 
-    // Get all address entries
     @GetMapping("/all")
-    public ResponseEntity<List<AddressBookDTO>> getAllAddresses() {
+    public ResponseEntity<List<AddressBookModel>> getAllAddresses() {
         return ResponseEntity.ok(service.getAllAddresses());
     }
 
-    // Get an address entry by ID
     @GetMapping("/{id}")
     public ResponseEntity<?> getAddressById(@PathVariable Long id) {
         return service.getAddressById(id)
@@ -38,7 +34,6 @@ public class AddressBookController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // Update an address entry
     @PutMapping("/update/{id}")
     public ResponseEntity<?> updateAddress(@PathVariable Long id, @RequestBody AddressBookDTO dto) {
         return service.updateAddress(id, dto)
@@ -46,10 +41,12 @@ public class AddressBookController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // Delete an address entry
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> deleteAddress(@PathVariable Long id) {
-        service.deleteAddress(id);
-        return ResponseEntity.ok("Address entry deleted successfully");
+        boolean deleted = service.deleteAddress(id);
+        if (deleted) {
+            return ResponseEntity.ok("Address entry deleted successfully");
+        }
+        return ResponseEntity.notFound().build();
     }
 }

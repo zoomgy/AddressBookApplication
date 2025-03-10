@@ -2,54 +2,52 @@ package com.example.AddressBook.service;
 
 import com.example.AddressBook.dto.AddressBookDTO;
 import com.example.AddressBook.model.AddressBookModel;
-import com.example.AddressBook.repository.AddressBookRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Service
 public class AddressBookService {
 
-    @Autowired
-    private AddressBookRepository repository;
+    private final List<AddressBookModel> addressList = new ArrayList<>();
+    private final AtomicLong idCounter = new AtomicLong(1);
 
     // Save a new address entry
     public AddressBookModel saveAddress(AddressBookDTO dto) {
         AddressBookModel address = new AddressBookModel();
+        address.setId(idCounter.getAndIncrement()); // Assign a unique ID
         address.setName(dto.getName());
         address.setPhone(dto.getPhone());
         address.setEmail(dto.getEmail());
-        return repository.save(address);
+        addressList.add(address);
+        return address;
     }
 
     // Get all address entries
-    public List<AddressBookDTO> getAllAddresses() {
-        List<AddressBookModel> addresses = repository.findAll();
-        return addresses.stream()
-                .map(address -> new AddressBookDTO(address.getName(), address.getPhone(), address.getEmail()))
-                .collect(Collectors.toList());
+    public List<AddressBookModel> getAllAddresses() {
+        return addressList;
     }
 
     // Get address by ID
     public Optional<AddressBookModel> getAddressById(Long id) {
-        return repository.findById(id);
+        return addressList.stream().filter(a -> a.getId().equals(id)).findFirst();
     }
 
     // Update address by ID
     public Optional<AddressBookModel> updateAddress(Long id, AddressBookDTO dto) {
-        return repository.findById(id).map(existingAddress -> {
+        return getAddressById(id).map(existingAddress -> {
             existingAddress.setName(dto.getName());
             existingAddress.setPhone(dto.getPhone());
             existingAddress.setEmail(dto.getEmail());
-            return repository.save(existingAddress);
+            return existingAddress;
         });
     }
 
     // Delete address by ID
-    public void deleteAddress(Long id) {
-        repository.deleteById(id);
+    public boolean deleteAddress(Long id) {
+        return addressList.removeIf(address -> address.getId().equals(id));
     }
 }
