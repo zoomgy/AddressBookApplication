@@ -4,16 +4,19 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class AddressModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String name;
-    private String email;
-    private String phoneNumber;
     private String address;
+    private String city;
+    private String state;
+    private String zip;
+    private String phoneNumber;
 }

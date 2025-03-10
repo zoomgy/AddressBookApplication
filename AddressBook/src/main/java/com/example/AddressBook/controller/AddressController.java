@@ -17,31 +17,32 @@ public class AddressController {
     @Autowired
     private AddressService addressService;
 
-    // GET all addresses
     @GetMapping("/")
     public List<AddressModel> getAllAddresses() {
         return addressService.getAllAddresses();
     }
 
-    // GET address by ID
     @GetMapping("/get/{id}")
     public ResponseEntity<AddressModel> getAddressById(@PathVariable Long id) {
-        return addressService.getAddressById(id)
-                .map(ResponseEntity::ok)
+        Optional<AddressModel> address = addressService.getAddressById(id);
+        return address.map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // POST - Create Address
     @PostMapping("/create")
-    public AddressModel createAddress(@RequestBody AddressDTO addressDTO) {
-        return addressService.createAddress(addressDTO);
+    public AddressModel createAddress(@RequestBody AddressModel address) {
+        return addressService.createAddress(address);
     }
 
-    // DELETE - Remove Address
+    @PutMapping("/update/{id}")
+    public ResponseEntity<AddressModel> updateAddress(@PathVariable Long id, @RequestBody AddressModel newDetails) {
+        Optional<AddressModel> updatedAddress = addressService.updateAddress(id, newDetails);
+        return updatedAddress.map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteAddress(@PathVariable Long id) {
-        return addressService.deleteAddress(id)
-                ? ResponseEntity.noContent().build()
-                : ResponseEntity.notFound().build();
+        return addressService.deleteAddress(id) ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
     }
 }
