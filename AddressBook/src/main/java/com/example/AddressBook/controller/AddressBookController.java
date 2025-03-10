@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/addressbook")
@@ -16,7 +17,7 @@ public class AddressBookController {
     @Autowired
     private AddressBookService service;
 
-    // Create new address entry
+    // Create a new address entry
     @PostMapping("/add")
     public ResponseEntity<AddressBookModel> addAddress(@RequestBody AddressBookDTO dto) {
         AddressBookModel savedAddress = service.saveAddress(dto);
@@ -27,5 +28,28 @@ public class AddressBookController {
     @GetMapping("/all")
     public ResponseEntity<List<AddressBookDTO>> getAllAddresses() {
         return ResponseEntity.ok(service.getAllAddresses());
+    }
+
+    // Get an address entry by ID
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getAddressById(@PathVariable Long id) {
+        return service.getAddressById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    // Update an address entry
+    @PutMapping("/update/{id}")
+    public ResponseEntity<?> updateAddress(@PathVariable Long id, @RequestBody AddressBookDTO dto) {
+        return service.updateAddress(id, dto)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    // Delete an address entry
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<String> deleteAddress(@PathVariable Long id) {
+        service.deleteAddress(id);
+        return ResponseEntity.ok("Address entry deleted successfully");
     }
 }
